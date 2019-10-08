@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import * as actionCreators from "../redux/actions/authActions";
 import {
   Container,
   Header,
@@ -9,8 +11,6 @@ import {
   Button,
   Text
 } from "native-base";
-
-import { connect } from "react-redux";
 
 // Actions
 // import { login } from "./redux/actions";
@@ -37,18 +37,39 @@ class LoginForm extends Component {
         <Content>
           <Form>
             <Item>
-              <Input name="username" value={username} placeholder="Username" />
+              <Input
+                name="username"
+                value={this.state.username}
+                onChangeText={username => this.setState({ username })}
+                placeholder="Username"
+              />
             </Item>
             <Item last>
               <Input
-                value={password}
+                onChangeText={password => this.setState({ password })}
+                value={this.state.password}
                 placeholder="Password"
                 secureTextEntry
                 name="password"
               />
             </Item>
-            <Button onPress={this.handleSubmit}>
+            <Button
+              full
+              success
+              onPress={() =>
+                this.props.login(this.state, this.props.navigation)
+              }
+            >
               <Text>Login</Text>
+            </Button>
+            <Button
+              full
+              warning
+              onPress={() =>
+                this.props.signup(this.state, this.props.navigation)
+              }
+            >
+              <Text>Register</Text>
             </Button>
           </Form>
         </Content>
@@ -56,4 +77,19 @@ class LoginForm extends Component {
     );
   }
 }
-export default LoginForm;
+const mapStateToProps = state => ({
+  user: state.user
+});
+const mapDispatchToProps = dispatch => ({
+  login: (userData, navigation) =>
+    dispatch(actionCreators.login(userData, navigation)),
+  signup: (userData, navigation) =>
+    dispatch(actionCreators.signup(userData, navigation)),
+  checkForToken: navigation =>
+    dispatch(actionCreators.checkForExpiredToken(navigation))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LoginForm);
